@@ -2,71 +2,58 @@ package scenes
 
 import (
 	"cook_burgers/models"
-	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/storage"
+	"fyne.io/fyne/v2/widget"
 )
 
 type MainScene struct {
-	window     fyne.Window
-	imageIndex int
-	imageURIs  []string
+	window fyne.Window
 }
 
-var c *models.Conveyor
+var conveyorModel *models.Conveyor
+var dishModel *models.Dish
 
 func NewMainScene(window fyne.Window) *MainScene {
-	imageURIs := []string{
-		"./assets/conveyor-images/14.png",
-		"./assets/conveyor-images/15.png",
-		"./assets/conveyor-images/16.png",
-		"./assets/conveyor-images/17.png",
-		"./assets/conveyor-images/18.png",
-		"./assets/conveyor-images/19.png",
-		"./assets/conveyor-images/20.png",
-		"./assets/conveyor-images/21.png",
-		"./assets/conveyor-images/23.png",
-		"./assets/conveyor-images/24.png",
-		"./assets/conveyor-images/25.png",
-		"./assets/conveyor-images/26.png",
-		"./assets/conveyor-images/27.png",
-	}
 	return &MainScene{
-		window:     window,
-		imageIndex: 0,
-		imageURIs:  imageURIs,
+		window: window,
 	}
 }
 
 func (scene *MainScene) Show() {
-	conveyor := canvas.NewImageFromURI(storage.NewFileURI("./assets/conveyor-images/14.png"))
-	conveyor.Resize(fyne.NewSize(980, 420))
-	conveyor.Move(fyne.NewPos(-40, 292))
+	burgerImage := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger.png"))
+	burgerImage.Resize(fyne.NewSize(100, 100))
+	burgerImage.Move(fyne.NewPos(10, 10))
 
-	c = models.NewConveyor(conveyor)
+	conveyorImage := canvas.NewImageFromURI(storage.NewFileURI("./assets/conveyor.png"))
+	conveyorImage.Resize(fyne.NewSize(800, 100))
+	conveyorImage.Move(fyne.NewPos(-3, 500))
 
-	scene.window.SetContent(container.NewWithoutLayout(conveyor))
+	dishImage := canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png"))
+	dishImage.Resize(fyne.NewSize(180, 30))
+	dishImage.Move(fyne.NewPos(-183, 470))
 
-	go scene.startImageChangeTimer()
+	dishModel = models.NewDish(dishImage, -183, 470)
+	conveyorModel = models.NewConveyor(conveyorImage)
+
+	startGameButton := widget.NewButton("Start Game", scene.StartGame)
+	startGameButton.Resize(fyne.NewSize(150, 30))
+	startGameButton.Move(fyne.NewPos(300, 10))
+
+	pauseGameButton := widget.NewButton("Pause Game", scene.StopGame)
+	pauseGameButton.Resize(fyne.NewSize(150, 30))
+	pauseGameButton.Move(fyne.NewPos(300, 50))
+
+	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, dishImage, startGameButton, pauseGameButton))
 }
 
-func (scene *MainScene) startImageChangeTimer() {
-	ticker := time.NewTicker(200 * time.Millisecond)
-	defer ticker.Stop()
+func (scene *MainScene) StartGame() {
+	go dishModel.Run()
+}
 
-	for {
-		select {
-		case <-ticker.C:
-			scene.imageIndex = (scene.imageIndex + 1) % len(scene.imageURIs)
-			newURI := storage.NewFileURI(scene.imageURIs[scene.imageIndex])
-			newCanvasImage := canvas.NewImageFromURI(newURI)
-			newCanvasImage.Resize(fyne.NewSize(980, 420))
-			newCanvasImage.Move(fyne.NewPos(-40, 292))
-
-			scene.window.SetContent(container.NewWithoutLayout(newCanvasImage))
-		}
-	}
+func (scene *MainScene) StopGame() {
+	dishModel.Stop()
 }
