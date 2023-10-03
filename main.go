@@ -3,7 +3,7 @@ package main
 import "cook_burgers/views"
 
 func main() {
-	view := views.NewMainView("Cocina Hamburguesas")
+	mainView := views.NewMainView("Cocina Hamburguesas")
 
-	view.Run()
+	mainView.Run()
 }

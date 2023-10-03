@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fyne.io/fyne/v2/storage"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -13,26 +14,33 @@ type Dish struct {
 	img        *canvas.Image
 }
 
-func NewDish(img *canvas.Image, posx float32, posy float32) *Dish {
+func NewDish() *Dish {
 	return &Dish{
-		posX:   posx,
-		posY:   posy,
+		posX:   -183,
+		posY:   520,
 		status: true,
-		img:    img,
+		img:    canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png")),
 	}
+}
+
+func (d *Dish) GetImage() *canvas.Image {
+	dishImage := d.img
+	dishImage.Resize(fyne.NewSize(180, 30))
+	dishImage.Move(fyne.NewPos(-183, 520))
+
+	return dishImage
 }
 
 func (d *Dish) Run() {
 	d.status = true
 	for d.status {
 		d.posX += 20
-		if d.posX > 620 {
+		if d.posX > 820 {
 			d.posX = -180
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(400 * time.Millisecond)
 		}
 		d.img.Move(fyne.NewPos(d.posX, d.posY))
 		time.Sleep(100 * time.Millisecond)
-
 	}
 }
 

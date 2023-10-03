@@ -1,17 +1,25 @@
 package models
 
 import (
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
+	"fyne.io/fyne/v2/storage"
 )
 
 type Conveyor struct {
-	status    bool
-	canvasImg *canvas.Image
+	image *canvas.Image
 }
 
-func NewConveyor(img *canvas.Image) *Conveyor {
+func NewConveyor() *Conveyor {
 	return &Conveyor{
-		status:    true,
-		canvasImg: img,
+		image: canvas.NewImageFromURI(storage.NewFileURI("./assets/conveyor.png")),
 	}
+}
+
+func (c *Conveyor) GetImage() *canvas.Image {
+	conveyorImage := c.image
+	conveyorImage.Resize(fyne.NewSize(1052, 100))
+	conveyorImage.Move(fyne.NewPos(-30, 550))
+
+	return conveyorImage
 }

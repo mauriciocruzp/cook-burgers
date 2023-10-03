@@ -16,6 +16,7 @@ type MainScene struct {
 
 var conveyorModel *models.Conveyor
 var dishModel *models.Dish
+var burgerPartsGeneratorModel *models.BurgerPartsGenerator
 
 func NewMainScene(window fyne.Window) *MainScene {
 	return &MainScene{
@@ -24,34 +25,37 @@ func NewMainScene(window fyne.Window) *MainScene {
 }
 
 func (scene *MainScene) Show() {
+	conveyorModel = models.NewConveyor()
+	dishModel = models.NewDish()
+	burgerPartsGeneratorModel = models.NewBurgerPartsGenerator()
+
+	conveyorImage := conveyorModel.GetImage()
+	dishImage := dishModel.GetImage()
+
 	burgerImage := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger.png"))
 	burgerImage.Resize(fyne.NewSize(100, 100))
 	burgerImage.Move(fyne.NewPos(10, 10))
 
-	conveyorImage := canvas.NewImageFromURI(storage.NewFileURI("./assets/conveyor.png"))
-	conveyorImage.Resize(fyne.NewSize(800, 100))
-	conveyorImage.Move(fyne.NewPos(-3, 500))
-
-	dishImage := canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png"))
-	dishImage.Resize(fyne.NewSize(180, 30))
-	dishImage.Move(fyne.NewPos(-183, 470))
-
-	dishModel = models.NewDish(dishImage, -183, 470)
-	conveyorModel = models.NewConveyor(conveyorImage)
+	topBreadImage := burgerPartsGeneratorModel.GetTopBread()
+	ketchupImage := burgerPartsGeneratorModel.GetKetchup()
+	lettuceImage := burgerPartsGeneratorModel.GetLettuce()
+	beefImage := burgerPartsGeneratorModel.GetBeef()
+	bottomBreadImage := burgerPartsGeneratorModel.GetBottomBread()
 
 	startGameButton := widget.NewButton("Start Game", scene.StartGame)
 	startGameButton.Resize(fyne.NewSize(150, 30))
-	startGameButton.Move(fyne.NewPos(300, 10))
+	startGameButton.Move(fyne.NewPos(425, 10))
 
 	pauseGameButton := widget.NewButton("Pause Game", scene.StopGame)
 	pauseGameButton.Resize(fyne.NewSize(150, 30))
-	pauseGameButton.Move(fyne.NewPos(300, 50))
+	pauseGameButton.Move(fyne.NewPos(425, 50))
 
-	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, dishImage, startGameButton, pauseGameButton))
+	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, bottomBreadImage, ketchupImage, lettuceImage, beefImage, topBreadImage, dishImage, startGameButton, pauseGameButton))
 }
 
 func (scene *MainScene) StartGame() {
 	go dishModel.Run()
+	go burgerPartsGeneratorModel.Run()
 }
 
 func (scene *MainScene) StopGame() {
