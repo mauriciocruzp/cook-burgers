@@ -12,14 +12,16 @@ type Dish struct {
 	posX, posY float32
 	status     bool
 	img        *canvas.Image
+	generator  *BurgerPartsGenerator
 }
 
-func NewDish() *Dish {
+func NewDish(generator *BurgerPartsGenerator) *Dish {
 	return &Dish{
-		posX:   -183,
-		posY:   520,
-		status: true,
-		img:    canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png")),
+		generator: generator,
+		posX:      -183,
+		posY:      520,
+		status:    true,
+		img:       canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png")),
 	}
 }
 
@@ -38,6 +40,7 @@ func (d *Dish) Run() {
 		if d.posX > 820 {
 			d.posX = -180
 			time.Sleep(400 * time.Millisecond)
+			d.generator.MoveItems()
 		}
 		d.img.Move(fyne.NewPos(d.posX, d.posY))
 		time.Sleep(100 * time.Millisecond)
