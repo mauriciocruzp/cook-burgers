@@ -4,6 +4,7 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/storage"
+	"math/rand"
 )
 
 type BurgerPartsGenerator struct {
@@ -30,6 +31,20 @@ func (b *BurgerPartsGenerator) Run() {
 	b.lettuce.Show()
 	b.beef.Show()
 	b.topBread.Show()
+}
+
+func randPosition() fyne.Position {
+	randXPos := 0 + rand.Intn(820-0)
+	randYPos := 200 + rand.Intn(480-200)
+	return fyne.NewPos(float32(randXPos), float32(randYPos))
+}
+
+func (b *BurgerPartsGenerator) MoveItems() {
+	b.topBread.Move(randPosition())
+	b.ketchup.Move(randPosition())
+	b.lettuce.Move(randPosition())
+	b.beef.Move(randPosition())
+	b.bottomBread.Move(randPosition())
 }
 
 func (b *BurgerPartsGenerator) GetTopBread() *canvas.Image {

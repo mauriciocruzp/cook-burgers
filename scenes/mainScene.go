@@ -2,7 +2,6 @@ package scenes
 
 import (
 	"cook_burgers/models"
-
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -26,8 +25,8 @@ func NewMainScene(window fyne.Window) *MainScene {
 
 func (scene *MainScene) Show() {
 	conveyorModel = models.NewConveyor()
-	dishModel = models.NewDish()
 	burgerPartsGeneratorModel = models.NewBurgerPartsGenerator()
+	dishModel = models.NewDish(burgerPartsGeneratorModel)
 
 	conveyorImage := conveyorModel.GetImage()
 	dishImage := dishModel.GetImage()
@@ -56,6 +55,7 @@ func (scene *MainScene) Show() {
 func (scene *MainScene) StartGame() {
 	go dishModel.Run()
 	go burgerPartsGeneratorModel.Run()
+	burgerPartsGeneratorModel.MoveItems()
 }
 
 func (scene *MainScene) StopGame() {
