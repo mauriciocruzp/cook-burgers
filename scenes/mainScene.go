@@ -26,7 +26,7 @@ func NewMainScene(window fyne.Window) *MainScene {
 func (scene *MainScene) Show() {
 	conveyorModel = models.NewConveyor()
 	burgerPartsGeneratorModel = models.NewBurgerPartsGenerator()
-	dishModel = models.NewDish(burgerPartsGeneratorModel)
+	dishModel = models.NewDish(burgerPartsGeneratorModel, scene.window)
 
 	conveyorImage := conveyorModel.GetImage()
 	dishImage := dishModel.GetImage()
@@ -55,9 +55,10 @@ func (scene *MainScene) Show() {
 func (scene *MainScene) StartGame() {
 	go dishModel.Run()
 	go burgerPartsGeneratorModel.Run()
-	burgerPartsGeneratorModel.MoveItems()
+	go burgerPartsGeneratorModel.MoveItems()
 }
 
 func (scene *MainScene) StopGame() {
 	dishModel.Stop()
+	burgerPartsGeneratorModel.Stop()
 }
