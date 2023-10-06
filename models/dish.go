@@ -8,21 +8,22 @@ import (
 )
 
 type Dish struct {
-	posX, posY float32
-	status     bool
-	img        *canvas.Image
-	generator  *BurgerPartsGenerator
-	window     fyne.Window
+	posX, posY   float32
+	status       bool
+	img          *canvas.Image
+	generator    *BurgerPartsGenerator
+	window       fyne.Window
+	itemsCounter float32
 }
 
-func NewDish(generator *BurgerPartsGenerator, window fyne.Window) *Dish {
+func NewDish(window fyne.Window) *Dish {
 	return &Dish{
-		window:    window,
-		generator: generator,
-		posX:      410,
-		posY:      520,
-		status:    true,
-		img:       canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png")),
+		window:       window,
+		posX:         410,
+		posY:         520,
+		status:       true,
+		img:          canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png")),
+		itemsCounter: 30,
 	}
 }
 
@@ -32,6 +33,11 @@ func (d *Dish) GetImage() *canvas.Image {
 	dishImage.Move(fyne.NewPos(410, 520))
 
 	return dishImage
+}
+
+func (d *Dish) SetItemOnDish(item *canvas.Image) {
+	item.Move(fyne.NewPos(d.posX, d.posY-d.itemsCounter))
+	d.itemsCounter = d.itemsCounter + 30
 }
 
 func (d *Dish) Run() {
@@ -50,17 +56,6 @@ func (d *Dish) Run() {
 		}
 		d.img.Move(fyne.NewPos(d.posX, d.posY))
 	})
-	//d.status = true
-	//for d.status {
-	//	d.posX += 20
-	//	if d.posX > 820 {
-	//		d.posX = -180
-	//		time.Sleep(400 * time.Millisecond)
-	//		d.generator.MoveItems()
-	//	}
-	//	d.img.Move(fyne.NewPos(d.posX, d.posY))
-	//	time.Sleep(100 * time.Millisecond)
-	//}
 }
 
 func (d *Dish) Stop() {
