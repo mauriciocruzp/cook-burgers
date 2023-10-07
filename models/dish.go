@@ -14,6 +14,7 @@ type Dish struct {
 	generator    *BurgerPartsGenerator
 	window       fyne.Window
 	itemsCounter float32
+	itemsOnDish  []*canvas.Image
 }
 
 func NewDish(window fyne.Window) *Dish {
@@ -24,6 +25,7 @@ func NewDish(window fyne.Window) *Dish {
 		status:       true,
 		img:          canvas.NewImageFromURI(storage.NewFileURI("./assets/dish.png")),
 		itemsCounter: 30,
+		itemsOnDish:  []*canvas.Image{},
 	}
 }
 
@@ -36,6 +38,7 @@ func (d *Dish) GetImage() *canvas.Image {
 }
 
 func (d *Dish) SetItemOnDish(item *canvas.Image) {
+	d.itemsOnDish = append(d.itemsOnDish, item)
 	item.Move(fyne.NewPos(d.posX, d.posY-d.itemsCounter))
 	d.itemsCounter = d.itemsCounter + 30
 }
@@ -55,6 +58,11 @@ func (d *Dish) Run() {
 			}
 		}
 		d.img.Move(fyne.NewPos(d.posX, d.posY))
+		if d.itemsCounter > 30 {
+			for _, item := range d.itemsOnDish {
+				item.Move(fyne.NewPos(d.posX, item.Position().Y))
+			}
+		}
 	})
 }
 

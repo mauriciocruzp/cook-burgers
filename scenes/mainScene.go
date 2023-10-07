@@ -35,11 +35,13 @@ func (scene *MainScene) Show() {
 	burgerImage.Resize(fyne.NewSize(100, 100))
 	burgerImage.Move(fyne.NewPos(10, 10))
 
-	topBreadImage := burgerPartsGeneratorModel.GetTopBread()
-	ketchupImage := burgerPartsGeneratorModel.GetKetchup()
-	lettuceImage := burgerPartsGeneratorModel.GetLettuce()
-	beefImage := burgerPartsGeneratorModel.GetBeef()
-	bottomBreadImage := burgerPartsGeneratorModel.GetBottomBread()
+	burgerParts := burgerPartsGeneratorModel.GetBurgerParts()
+
+	bottomBreadImage := burgerParts[0]
+	lettuceImage := burgerParts[1]
+	beefImage := burgerParts[2]
+	ketchupImage := burgerParts[3]
+	topBreadImage := burgerParts[4]
 
 	startGameButton := widget.NewButton("Start Game", scene.StartGame)
 	startGameButton.Resize(fyne.NewSize(150, 30))
