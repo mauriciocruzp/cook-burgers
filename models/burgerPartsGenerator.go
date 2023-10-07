@@ -63,6 +63,11 @@ func (b *BurgerPartsGenerator) CollapseItem(image *canvas.Image) {
 			b.dish.SetItemOnDish(image)
 			break
 		}
+
+		if image.Position().Y >= 520 {
+			image.Hide()
+			break
+		}
 	}
 }
 
