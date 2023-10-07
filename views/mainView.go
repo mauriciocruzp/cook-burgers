@@ -11,15 +11,13 @@ type MainView struct {
 	title string
 }
 
-func NewMainView(title string) *MainView {
-	return &MainView{
-		title: title,
-	}
+func NewMainView() *MainView {
+	return &MainView{}
 }
 
 func (v *MainView) Run() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow(v.title)
+	myWindow := myApp.NewWindow("Cocina Hamburguesas")
 	myWindow.CenterOnScreen()
 	myWindow.SetFixedSize(true)
 	myWindow.Resize(fyne.NewSize(1000, 650))

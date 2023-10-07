@@ -5,89 +5,83 @@ import (
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/storage"
 	"math/rand"
+	"time"
 )
 
 type BurgerPartsGenerator struct {
-	topBread    *canvas.Image
-	ketchup     *canvas.Image
-	lettuce     *canvas.Image
-	beef        *canvas.Image
-	bottomBread *canvas.Image
+	burgerParts []*canvas.Image
+	status      bool
+	dish        *Dish
 }
 
-func NewBurgerPartsGenerator() *BurgerPartsGenerator {
+func NewBurgerPartsGenerator(dish *Dish) *BurgerPartsGenerator {
+	bottomBread := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/bottom_bread.png"))
+	lettuce := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/lettuce.png"))
+	beef := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/beef.png"))
+	ketchup := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/ketchup.png"))
+	topBread := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/top_bread.png"))
+
 	return &BurgerPartsGenerator{
-		topBread:    canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/top_bread.png")),
-		ketchup:     canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/ketchup.png")),
-		lettuce:     canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/lettuce.png")),
-		beef:        canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/beef.png")),
-		bottomBread: canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/bottom_bread.png")),
+		burgerParts: []*canvas.Image{bottomBread, lettuce, beef, ketchup, topBread},
+		status:      true,
+		dish:        dish,
 	}
 }
 
 func (b *BurgerPartsGenerator) Run() {
-	b.bottomBread.Show()
-	b.ketchup.Show()
-	b.lettuce.Show()
-	b.beef.Show()
-	b.topBread.Show()
+	for b.status {
+		for _, item := range b.burgerParts {
+			b.ResetItem(item)
+			item.Show()
+			go b.CollapseItem(item)
+
+			time.Sleep(time.Second * 4)
+		}
+
+		b.HideAllImages()
+		b.dish.itemsCounter = 30
+		b.dish.itemsOnDish = []*canvas.Image{}
+	}
+}
+
+func (b *BurgerPartsGenerator) HideAllImages() {
+	for _, item := range b.burgerParts {
+		item.Hide()
+	}
 }
 
 func randPosition() fyne.Position {
 	randXPos := 0 + rand.Intn(820-0)
-	randYPos := 200 + rand.Intn(480-200)
-	return fyne.NewPos(float32(randXPos), float32(randYPos))
+	return fyne.NewPos(float32(randXPos), 0)
 }
 
-func (b *BurgerPartsGenerator) MoveItems() {
-	b.topBread.Move(randPosition())
-	b.ketchup.Move(randPosition())
-	b.lettuce.Move(randPosition())
-	b.beef.Move(randPosition())
-	b.bottomBread.Move(randPosition())
+func (b *BurgerPartsGenerator) CollapseItem(image *canvas.Image) {
+	for b.status {
+		image.Move(fyne.NewPos(image.Position().X, image.Position().Y+5))
+		time.Sleep(time.Millisecond * 40)
+		if image.Position().X-100 < b.dish.img.Position().X && image.Position().X+280 > b.dish.img.Position().X+180 && image.Position().Y == 520-b.dish.itemsCounter {
+			b.dish.SetItemOnDish(image)
+			break
+		}
+	}
 }
 
-func (b *BurgerPartsGenerator) GetTopBread() *canvas.Image {
-	topBreadImage := b.topBread
-	topBreadImage.Resize(fyne.NewSize(180, 30))
-	topBreadImage.Move(fyne.NewPos(340, 300))
-	topBreadImage.Hide()
-
-	return topBreadImage
+func (b *BurgerPartsGenerator) ResetItem(image *canvas.Image) {
+	image.Move(randPosition())
 }
 
-func (b *BurgerPartsGenerator) GetKetchup() *canvas.Image {
-	ketchupImage := b.ketchup
-	ketchupImage.Resize(fyne.NewSize(180, 30))
-	ketchupImage.Move(fyne.NewPos(40, 380))
-	ketchupImage.Hide()
+func (b *BurgerPartsGenerator) GetBurgerParts() []*canvas.Image {
+	burgerParts := b.burgerParts
 
-	return ketchupImage
+	for _, item := range burgerParts {
+		item.Resize(fyne.NewSize(180, 30))
+		item.Move(randPosition())
+		item.Hide()
+	}
+
+	return burgerParts
 }
 
-func (b *BurgerPartsGenerator) GetLettuce() *canvas.Image {
-	lettuceImage := b.lettuce
-	lettuceImage.Resize(fyne.NewSize(180, 30))
-	lettuceImage.Move(fyne.NewPos(480, 440))
-	lettuceImage.Hide()
-
-	return lettuceImage
-}
-
-func (b *BurgerPartsGenerator) GetBeef() *canvas.Image {
-	beefImage := b.beef
-	beefImage.Resize(fyne.NewSize(180, 30))
-	beefImage.Move(fyne.NewPos(640, 260))
-	beefImage.Hide()
-
-	return beefImage
-}
-
-func (b *BurgerPartsGenerator) GetBottomBread() *canvas.Image {
-	bottomBreadImage := b.bottomBread
-	bottomBreadImage.Resize(fyne.NewSize(180, 30))
-	bottomBreadImage.Move(fyne.NewPos(200, 200))
-	bottomBreadImage.Hide()
-
-	return bottomBreadImage
+func (b *BurgerPartsGenerator) Stop() {
+	b.status = false
 }
