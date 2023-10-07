@@ -11,15 +11,18 @@ import (
 
 type MainScene struct {
 	window fyne.Window
+	status bool
 }
 
 var conveyorModel *models.Conveyor
 var dishModel *models.Dish
 var burgerPartsGeneratorModel *models.BurgerPartsGenerator
+var pointsCounterScene *PointsCounter
 
 func NewMainScene(window fyne.Window) *MainScene {
 	return &MainScene{
 		window: window,
+		status: false,
 	}
 }
 
@@ -27,6 +30,7 @@ func (scene *MainScene) Show() {
 	conveyorModel = models.NewConveyor()
 	dishModel = models.NewDish(scene.window)
 	burgerPartsGeneratorModel = models.NewBurgerPartsGenerator(dishModel)
+	pointsCounterScene = pointsCounterScene.NewPointsCounter(scene.window, dishModel)
 
 	conveyorImage := conveyorModel.GetImage()
 	dishImage := dishModel.GetImage()
@@ -47,10 +51,28 @@ func (scene *MainScene) Show() {
 	startGameButton.Resize(fyne.NewSize(150, 30))
 	startGameButton.Move(fyne.NewPos(425, 10))
 
-	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, bottomBreadImage, ketchupImage, lettuceImage, beefImage, topBreadImage, dishImage, startGameButton))
+	pauseGameButton := widget.NewButton("Pause Game", nil)
+	pauseGameButton.Resize(fyne.NewSize(150, 30))
+	pauseGameButton.Move(fyne.NewPos(425, 50))
+
+	pointsCounter := container.NewVBox(
+		pointsCounterScene.GetCounterLabel(),
+	)
+	pointsCounter.Move(fyne.NewPos(825, 20))
+	pointsCounter.Resize(fyne.NewSize(150, 30))
+
+	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, bottomBreadImage, ketchupImage, lettuceImage, beefImage, topBreadImage, dishImage, startGameButton, pauseGameButton, pointsCounter))
+}
+
+func (scene *MainScene) GetWindow() fyne.Window {
+	return scene.window
 }
 
 func (scene *MainScene) StartGame() {
-	go dishModel.Run()
-	go burgerPartsGeneratorModel.Run()
+	if !scene.status {
+		go dishModel.Run()
+		go burgerPartsGeneratorModel.Run()
+		go pointsCounterScene.Run()
+	}
+	scene.status = true
 }
