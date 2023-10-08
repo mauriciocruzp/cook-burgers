@@ -2,6 +2,7 @@ package scenes
 
 import (
 	"cook_burgers/models"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
@@ -51,7 +52,7 @@ func (scene *MainScene) Show() {
 	startGameButton.Resize(fyne.NewSize(150, 30))
 	startGameButton.Move(fyne.NewPos(425, 10))
 
-	pauseGameButton := widget.NewButton("Pause Game", nil)
+	pauseGameButton := widget.NewButton("Pause Game", scene.StopGame)
 	pauseGameButton.Resize(fyne.NewSize(150, 30))
 	pauseGameButton.Move(fyne.NewPos(425, 50))
 
@@ -64,15 +65,27 @@ func (scene *MainScene) Show() {
 	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, bottomBreadImage, ketchupImage, lettuceImage, beefImage, topBreadImage, dishImage, startGameButton, pauseGameButton, pointsCounter))
 }
 
-func (scene *MainScene) GetWindow() fyne.Window {
-	return scene.window
+func (scene *MainScene) GetStatus() bool {
+	return scene.status
+}
+
+func (scene *MainScene) SetStatus(status bool) {
+	scene.status = status
 }
 
 func (scene *MainScene) StartGame() {
-	if !scene.status {
+	if !scene.GetStatus() {
 		go dishModel.Run()
 		go burgerPartsGeneratorModel.Run()
 		go pointsCounterScene.Run()
 	}
-	scene.status = true
+	scene.SetStatus(true)
+}
+
+func (scene *MainScene) StopGame() {
+	if scene.GetStatus() {
+		dishModel.Stop()
+		burgerPartsGeneratorModel.Stop()
+	}
+	scene.SetStatus(false)
 }
