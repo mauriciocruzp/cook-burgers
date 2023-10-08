@@ -3,9 +3,10 @@ package scenes
 import (
 	"cook_burgers/models"
 	"fmt"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
-	"time"
 )
 
 type PointsCounter struct {
@@ -43,4 +44,15 @@ func (pc *PointsCounter) UpdateCounter() {
 
 func (pc *PointsCounter) GetCounterLabel() *widget.Label {
 	return pc.counterLabel
+}
+
+func (pc *PointsCounter) GetPoints() int {
+	return pc.points
+}
+
+func (pc *PointsCounter) SetPoints(points int) {
+	pc.points = points
+	pc.counterLabel.SetText("Hamburguesas: " + fmt.Sprint(pc.points))
+
+	pc.window.Canvas().Refresh(pc.counterLabel)
 }

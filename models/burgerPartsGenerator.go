@@ -2,6 +2,7 @@ package models
 
 import (
 	"math/rand"
+	"sync"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -10,9 +11,11 @@ import (
 )
 
 type BurgerPartsGenerator struct {
-	burgerParts []*canvas.Image
-	status      bool
-	dish        *Dish
+	burgerParts    []*canvas.Image
+	status         bool
+	dish           *Dish
+	timeToCollapse time.Duration
+	gameStatus     bool
 }
 
 func NewBurgerPartsGenerator(dish *Dish) *BurgerPartsGenerator {
@@ -23,30 +26,46 @@ func NewBurgerPartsGenerator(dish *Dish) *BurgerPartsGenerator {
 	topBread := canvas.NewImageFromURI(storage.NewFileURI("./assets/burger/top_bread.png"))
 
 	return &BurgerPartsGenerator{
-		burgerParts: []*canvas.Image{bottomBread, lettuce, beef, ketchup, topBread},
-		status:      true,
-		dish:        dish,
+		burgerParts:    []*canvas.Image{bottomBread, lettuce, beef, ketchup, topBread},
+		status:         true,
+		dish:           dish,
+		timeToCollapse: 40,
+		gameStatus:     true,
 	}
 }
 
-func (b *BurgerPartsGenerator) Run() {
+func (b *BurgerPartsGenerator) Run(wg *sync.WaitGroup, quit chan bool) {
+	defer wg.Done()
+	b.SetStatus(true)
+
 	for b.status {
 		for _, item := range b.burgerParts {
-			b.ResetItem(item)
-			item.Show()
-			go b.CollapseItem(item)
+			select {
+			case <-quit:
+				return
+			default:
+				b.ResetItem(item)
+				item.Show()
+				go b.CollapseItem(item)
 
-			time.Sleep(time.Second * 4)
+				time.Sleep(time.Second * 4)
+			}
 		}
 
 		b.HideAllImages()
 		b.dish.itemsCounter = 30
 		b.dish.itemsOnDish = []*canvas.Image{}
+		if b.timeToCollapse <= 10 && b.timeToCollapse > 3 {
+			b.timeToCollapse = b.timeToCollapse - 1
+		} else if b.timeToCollapse > 10 {
+			b.timeToCollapse = b.timeToCollapse - 10
+		}
 	}
 }
 
 func (b *BurgerPartsGenerator) Stop() {
 	b.SetStatus(false)
+	b.HideAllImages()
 }
 
 func (b *BurgerPartsGenerator) GetBurgerParts() []*canvas.Image {
@@ -59,6 +78,14 @@ func (b *BurgerPartsGenerator) GetBurgerParts() []*canvas.Image {
 	}
 
 	return burgerParts
+}
+
+func (b *BurgerPartsGenerator) GetGameStatus() bool {
+	return b.gameStatus
+}
+
+func (b *BurgerPartsGenerator) SetGameStatus(status bool) {
+	b.gameStatus = status
 }
 
 func (b *BurgerPartsGenerator) GetStatus() bool {
@@ -83,14 +110,16 @@ func randPosition() fyne.Position {
 func (b *BurgerPartsGenerator) CollapseItem(image *canvas.Image) {
 	for b.status {
 		image.Move(fyne.NewPos(image.Position().X, image.Position().Y+5))
-		time.Sleep(time.Millisecond * 40)
+		time.Sleep(time.Millisecond * b.timeToCollapse)
 		if image.Position().X-100 < b.dish.img.Position().X && image.Position().X+280 > b.dish.img.Position().X+180 && image.Position().Y == 520-b.dish.itemsCounter {
 			b.dish.SetItemOnDish(image)
 			break
 		}
 
 		if image.Position().Y >= 520 {
-			image.Hide()
+			b.HideAllImages()
+			b.timeToCollapse = 40
+			b.SetGameStatus(false)
 			break
 		}
 	}
