@@ -11,7 +11,6 @@ type Dish struct {
 	posX, posY   float32
 	status       bool
 	img          *canvas.Image
-	generator    *BurgerPartsGenerator
 	window       fyne.Window
 	itemsCounter float32
 	itemsOnDish  []*canvas.Image
@@ -48,28 +47,35 @@ func (d *Dish) SetItemOnDish(item *canvas.Image) {
 }
 
 func (d *Dish) Run() {
+	d.SetStatus(true)
 	d.window.Canvas().(desktop.Canvas).SetOnKeyDown(func(event *fyne.KeyEvent) {
-		step := float32(50)
+		if d.GetStatus() {
+			step := float32(50)
 
-		switch event.Name {
-		case fyne.KeyLeft:
-			if d.posX > 20 {
-				d.posX -= step
+			switch event.Name {
+			case fyne.KeyLeft:
+				if d.posX > 20 {
+					d.posX -= step
+				}
+			case fyne.KeyRight:
+				if d.posX < 800 {
+					d.posX += step
+				}
 			}
-		case fyne.KeyRight:
-			if d.posX < 800 {
-				d.posX += step
-			}
-		}
-		d.img.Move(fyne.NewPos(d.posX, d.posY))
-		if d.itemsCounter > 30 {
-			for _, item := range d.itemsOnDish {
-				item.Move(fyne.NewPos(d.posX, item.Position().Y))
+			d.img.Move(fyne.NewPos(d.posX, d.posY))
+			if d.itemsCounter > 30 {
+				for _, item := range d.itemsOnDish {
+					item.Move(fyne.NewPos(d.posX, item.Position().Y))
+				}
 			}
 		}
 	})
 }
 
-func (d *Dish) Stop() {
-	d.status = false
+func (d *Dish) GetStatus() bool {
+	return d.status
+}
+
+func (d *Dish) SetStatus(status bool) {
+	d.status = status
 }
