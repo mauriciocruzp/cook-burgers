@@ -1,11 +1,12 @@
 package models
 
 import (
+	"math/rand"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/storage"
-	"math/rand"
-	"time"
 )
 
 type BurgerPartsGenerator struct {
@@ -44,6 +45,30 @@ func (b *BurgerPartsGenerator) Run() {
 	}
 }
 
+func (b *BurgerPartsGenerator) Stop() {
+	b.SetStatus(false)
+}
+
+func (b *BurgerPartsGenerator) GetBurgerParts() []*canvas.Image {
+	burgerParts := b.burgerParts
+
+	for _, item := range burgerParts {
+		item.Resize(fyne.NewSize(180, 30))
+		item.Move(randPosition())
+		item.Hide()
+	}
+
+	return burgerParts
+}
+
+func (b *BurgerPartsGenerator) GetStatus() bool {
+	return b.status
+}
+
+func (b *BurgerPartsGenerator) SetStatus(status bool) {
+	b.status = status
+}
+
 func (b *BurgerPartsGenerator) HideAllImages() {
 	for _, item := range b.burgerParts {
 		item.Hide()
@@ -73,20 +98,4 @@ func (b *BurgerPartsGenerator) CollapseItem(image *canvas.Image) {
 
 func (b *BurgerPartsGenerator) ResetItem(image *canvas.Image) {
 	image.Move(randPosition())
-}
-
-func (b *BurgerPartsGenerator) GetBurgerParts() []*canvas.Image {
-	burgerParts := b.burgerParts
-
-	for _, item := range burgerParts {
-		item.Resize(fyne.NewSize(180, 30))
-		item.Move(randPosition())
-		item.Hide()
-	}
-
-	return burgerParts
-}
-
-func (b *BurgerPartsGenerator) Stop() {
-	b.status = false
 }

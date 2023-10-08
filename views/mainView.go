@@ -7,9 +7,7 @@ import (
 	"fyne.io/fyne/v2/app"
 )
 
-type MainView struct {
-	title string
-}
+type MainView struct{}
 
 func NewMainView() *MainView {
 	return &MainView{}
