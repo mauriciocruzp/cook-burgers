@@ -15,7 +15,7 @@ func NewMainView() *MainView {
 
 func (v *MainView) Run() {
 	myApp := app.New()
-	myWindow := myApp.NewWindow("Cocina Hamburguesas")
+	myWindow := myApp.NewWindow("Cook Burgers")
 	myWindow.CenterOnScreen()
 	myWindow.SetFixedSize(true)
 	myWindow.Resize(fyne.NewSize(1000, 650))

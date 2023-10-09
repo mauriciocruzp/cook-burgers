@@ -18,7 +18,7 @@ type PointsCounter struct {
 
 func (pc *PointsCounter) NewPointsCounter(window fyne.Window, dish *models.Dish) *PointsCounter {
 	return &PointsCounter{
-		counterLabel: widget.NewLabel("Hamburguesas: 0"),
+		counterLabel: widget.NewLabel("Burgers: 0"),
 		points:       0,
 		window:       window,
 		dish:         dish,
@@ -37,7 +37,7 @@ func (pc *PointsCounter) Run() {
 func (pc *PointsCounter) UpdateCounter() {
 	pc.points++
 
-	pc.counterLabel.SetText("Hamburguesas: " + fmt.Sprint(pc.points))
+	pc.counterLabel.SetText("Burgers: " + fmt.Sprint(pc.points))
 
 	pc.window.Canvas().Refresh(pc.counterLabel)
 }
@@ -52,7 +52,7 @@ func (pc *PointsCounter) GetPoints() int {
 
 func (pc *PointsCounter) SetPoints(points int) {
 	pc.points = points
-	pc.counterLabel.SetText("Hamburguesas: " + fmt.Sprint(pc.points))
+	pc.counterLabel.SetText("Burgers: " + fmt.Sprint(pc.points))
 
 	pc.window.Canvas().Refresh(pc.counterLabel)
 }
