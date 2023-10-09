@@ -3,6 +3,7 @@ package scenes
 import (
 	"cook_burgers/models"
 	"fmt"
+	"sync"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -25,11 +26,18 @@ func (pc *PointsCounter) NewPointsCounter(window fyne.Window, dish *models.Dish)
 	}
 }
 
-func (pc *PointsCounter) Run() {
+func (pc *PointsCounter) Run(wg *sync.WaitGroup, quit chan bool) {
+	defer wg.Done()
+
 	for {
-		if len(pc.dish.GetItemsOnDish()) == 5 {
-			pc.UpdateCounter()
-			time.Sleep(time.Second * 4)
+		select {
+		case <-quit:
+			return
+		default:
+			if len(pc.dish.GetItemsOnDish()) == 5 {
+				pc.UpdateCounter()
+				time.Sleep(time.Second * 4)
+			}
 		}
 	}
 }

@@ -59,10 +59,6 @@ func (scene *MainScene) Show() {
 	startGameButton.Resize(fyne.NewSize(150, 30))
 	startGameButton.Move(fyne.NewPos(425, 10))
 
-	restartGameButton := widget.NewButton("Restart Game", scene.RestartGame)
-	restartGameButton.Resize(fyne.NewSize(150, 30))
-	restartGameButton.Move(fyne.NewPos(425, 50))
-
 	pointsCounter := container.NewVBox(
 		pointsCounterScene.GetCounterLabel(),
 	)
@@ -74,7 +70,7 @@ func (scene *MainScene) Show() {
 	gameOverLabel.Move(fyne.NewPos(325, 140))
 	gameOverLabel.Hide()
 
-	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, bottomBreadImage, ketchupImage, lettuceImage, beefImage, topBreadImage, dishImage, startGameButton, restartGameButton, pointsCounter, gameOverLabel))
+	scene.window.SetContent(container.NewWithoutLayout(burgerImage, conveyorImage, bottomBreadImage, ketchupImage, lettuceImage, beefImage, topBreadImage, dishImage, startGameButton, pointsCounter, gameOverLabel))
 }
 
 func (scene *MainScene) GetStatus() bool {
@@ -91,22 +87,26 @@ func (scene *MainScene) StartGame() {
 		burgerPartsGeneratorModel.SetGameStatus(true)
 
 		go dishModel.Run()
-		scene.wg.Add(1)
+		scene.wg.Add(2)
 		go burgerPartsGeneratorModel.Run(&scene.wg, scene.quit)
-		go pointsCounterScene.Run()
+		go pointsCounterScene.Run(&scene.wg, scene.quit)
 		go scene.GameOver()
 	}
 	scene.SetStatus(true)
 }
 
+func (scene *MainScene) StopGame() {
+	dishModel.SetStatus(false)
+	burgerPartsGeneratorModel.Stop()
+	gameOverLabel.Show()
+	close(scene.quit)
+	scene.wg.Wait()
+}
+
 func (scene *MainScene) GameOver() {
 	for scene.GetStatus() {
 		if !burgerPartsGeneratorModel.GetGameStatus() {
-			dishModel.SetStatus(false)
-			burgerPartsGeneratorModel.Stop()
-			gameOverLabel.Show()
-			close(scene.quit)
-			scene.wg.Wait()
+			scene.StopGame()
 			println("Game Over")
 			time.Sleep(time.Second * 2)
 			gameOverLabel.Hide()
@@ -114,16 +114,4 @@ func (scene *MainScene) GameOver() {
 			scene.SetStatus(false)
 		}
 	}
-}
-
-func (scene *MainScene) RestartGame() {
-	if scene.GetStatus() {
-		dishModel.SetStatus(false)
-		burgerPartsGeneratorModel.Stop()
-		close(scene.quit)
-		scene.wg.Wait()
-		pointsCounterScene.SetPoints(0)
-	}
-	scene.SetStatus(false)
-	scene.StartGame()
 }
