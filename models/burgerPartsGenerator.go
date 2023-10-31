@@ -54,7 +54,7 @@ func (b *BurgerPartsGenerator) Run(wg *sync.WaitGroup, quit chan bool) {
 
 		b.HideAllImages()
 		b.dish.itemsCounter = 30
-		b.dish.itemsOnDish = []*canvas.Image{}
+		b.dish.DeleteItemsOnDish()
 		if b.timeToCollapse <= 10 && b.timeToCollapse > 3 {
 			b.timeToCollapse = b.timeToCollapse - 1
 		} else if b.timeToCollapse > 10 {
@@ -65,6 +65,7 @@ func (b *BurgerPartsGenerator) Run(wg *sync.WaitGroup, quit chan bool) {
 
 func (b *BurgerPartsGenerator) Stop() {
 	b.SetStatus(false)
+	b.dish.DeleteItemsOnDish()
 	b.HideAllImages()
 }
 

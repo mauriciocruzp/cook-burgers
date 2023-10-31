@@ -40,6 +40,10 @@ func (d *Dish) GetItemsOnDish() []*canvas.Image {
 	return d.itemsOnDish
 }
 
+func (d *Dish) DeleteItemsOnDish() {
+	d.itemsOnDish = []*canvas.Image{}
+}
+
 func (d *Dish) SetItemOnDish(item *canvas.Image) {
 	d.itemsOnDish = append(d.itemsOnDish, item)
 	item.Move(fyne.NewPos(d.posX, d.posY-d.itemsCounter))
